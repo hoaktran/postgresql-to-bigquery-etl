@@ -62,9 +62,9 @@
 
 PostgreSQL is one of the most popular tools to store and analyze data at scale. However, it requires a huge effort and expertise to run analytic queries within the desired time using PostgreSQL. 
 
-This is a barrier for business users who do not have that skill. This is why it is preferred to have a separate system on the cloud for analytical workloads, so we can have additional benefits like automatic and elastic scaling based on the complexity of queries. 
+This is a barrier for non-expert business users. A solution is to  have a separate system on the cloud for analytical workloads to allow additional benefits like automatic and elastic scaling based on the complexity of queries.
 
-Hence, I choose to mirror data from PostgreSQL to Google BigQuery.
+Hence, I created this code to mirror data from PostgreSQL to Google BigQuery.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -79,9 +79,9 @@ Hence, I choose to mirror data from PostgreSQL to Google BigQuery.
 ### Logic
 * Get all the tables within the specified database on PostgreSQL
 * For each PostgreSQL table
-  * If it hasn't existed on BigQuery, then save the whole table to a CSV file, and upload it to BigQuery under the name `final_{table_name}`
+  * If it has not existed on BigQuery, then save the whole table to a CSV file, and upload it to BigQuery under the name `final_{table_name}`
   * If it has already existed on BigQuery
-    * If it does not have the column `updated_at`, then save the whole table to a CSV file, and upload it to BigQuery under the name `final_{table_name}`
+    * If it does not have the field on update timestamp, then save the whole table to a CSV file, and upload it to BigQuery under the name `final_{table_name}`
     * If it has the field on update timestamp, then get the lastest update timestamp of the respective table on BigQuery, and divide the table into two parts
       * The first part is the rows that have not been updated since the previous sync
         * Save this part to a CSV file and upload it to BigQuery under the name `intermediate_not_updated_{table_name}`
@@ -90,7 +90,7 @@ Hence, I choose to mirror data from PostgreSQL to Google BigQuery.
         * Save this part to a CSV file and upload it to BigQuery under the name `intermediate_updated_{table_name}`
         * Insert all rows from the table `intermediate_updated_{table_name}` to the respective BigQuery table
 
-I want to talk a bit about uploading a CSV file to a BigQuery table. Theoretically, BigQuery can automatically detect the schema from the file. However, it only scan up to the first 500 rows of the file to dertemine the data type. This can break the code if later on, the data does not have the same type. Another workaround way is to assign the schema for each CSV file specifically, which is a huge hassle. Therefore, I decide to, whenever upload a CSV file to a BigQuery table, convert all the fields to the string format.
+It is worth to talk a bit about uploading a CSV file to a BigQuery table. Theoretically, BigQuery can automatically detect the schema from the file. However, it only scan up to the first 500 rows of the file to dertemine the data type. This can break the code if later on, the data does not have the same type. Another workaround way is to assign the schema for each CSV file specifically, which is a huge hassle. Therefore, I decide to, whenever uploading a CSV file to a BigQuery table, converting all the fields to the string format.
 
 Finally, the code will check the update timestamp in each `intermediate_not_updated_{table_name}`, if available, and send the alert email if the data is stale.
 
