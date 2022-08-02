@@ -1,12 +1,14 @@
 <div id="top"></div>
 
+<div align="center">
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
+</div>
 
 <!-- PROJECT LOGO -->
 <br />
@@ -42,11 +44,10 @@
       </ul>
     </li>
     <li>
+      <a href="#logic">Logic</a>
+    </li>
+    <li>
       <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
@@ -69,6 +70,14 @@ Hence, I choose to mirror data from PostgreSQL to Google BigQuery.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+### Built With
+
+* [![Google Cloud][Google Cloud.js]][Google Cloud-url]
+* [![PostgreSQL][PostgreSQL.js]][PostgreSQL-url]
+* [![Python][Python.js]][Python-url]
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Logic
 * Get all the tables within the specified database on PostgreSQL
 * For each PostgreSQL table
@@ -85,33 +94,12 @@ Hence, I choose to mirror data from PostgreSQL to Google BigQuery.
 
 I want to talk a bit about uploading a CSV file to a BigQuery table. Theoretically, BigQuery can automatically detect the schema from the file. However, it only scan up to the first 500 rows of the file to dertemine the data type. This can break the code if later on, the data does not have the same type. Another workaround way is to assign the schema for each CSV file specifically, which is a huge hassle. Therefore, I decide to, whenever upload a CSV file to a BigQuery table, convert all the fields to the string format.
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-### Built With
-
-* [![Google Cloud][Google Cloud.js]][Google Cloud-url]
-* [![PostgreSQL][PostgreSQL.js]][PostgreSQL-url]
-* [![Python][Python.js]][Python-url]
+Finally, the code will check the update timestamp in each `intermediate_not_updated_{table_name}`, if available, and send the alert email if the data is stale.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
 
 <!-- GETTING STARTED -->
 ## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
-
-### Installation
 
 1. Create a service account for BigQuery API following [this article](https://cloud.google.com/bigquery/docs/reference/libraries) and download it to local environment
 2. Clone the repo
@@ -127,6 +115,13 @@ This is an example of how to list things you need to use the software and how to
    working_folder = os.getcwd()
    client = bigquery.Client.from_service_account_json(os.sep.join([working_folder, "bigqueryapi.json"]))
    ```
+5. For the sending alert email function when the data gets stale, set the sender and receiver emails, along with the app password if they are gmail (tips can be found [here](https://support.google.com/accounts/))
+  ```py
+  def send_email_notification(subject, content):
+    sender_email = "the-sender-email@gmail.com"
+    app_password = "app-password" 
+    receiver_email = "the-receiver-email@amanotes.com"
+  ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -135,9 +130,9 @@ This is an example of how to list things you need to use the software and how to
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+For a specific environment, you can run the function `mirror(env)` to mirror that environment from Postgres to BigQuery.
+To get notification on stale data, run the function `stale_notify(env)`.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -146,10 +141,8 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+- [ ] Add `apscheduler` library to schedule cron job
+- [ ] Explore other options to migrate data in real time, for example [using Google Cloud Dataflow](https://cloud.google.com/bigquery/docs/migration/redshift-overview)
 
 See the [open issues](https://github.com/hoaktran/postgresql-to-bigquery-etl/issues) for a full list of proposed features (and known issues).
 
