@@ -8,12 +8,12 @@ from datetime import datetime, timezone
 from time import time
 
 working_folder = os.getcwd()
-client = bigquery.Client.from_service_account_json(os.sep.join([working_folder, "bigqueryapi.json"]))
+client = bigquery.Client.from_service_account_json(os.sep.join([working_folder, "your-bigquery-access-token-file.json"]))
 
 ### Set necessary variables ###
 download_folder = os.sep.join([working_folder, "BigQuery Sync"])
-bq_project_id = "music-solutions-data"
-postgres_db_name = "musicdb-pro-max"
+bq_project_id = "your-bigquery-project-id"
+postgres_db_name = "your-postgres-database-name"
 
 env_creds = {}
 
@@ -163,12 +163,12 @@ def export_one_postgres_table(curs, env, table_name):
 
     Args:
         curs (Postgres cursor): The Postgres cursor that depends on the chosen environment. 
-        env (str): The chosen database on Postgres. It can be either musicdb_dev, musicdb_prod, or msk.
+        env (str): The chosen database on Postgres.
         table_name (str): Name of the Postgres table
     """
     # Check if the download directory for the chosen env exists or not
     # if not, create one
-    for table_type in ["delete", "intermediate", "final"]:
+    for table_type in ["intermediate_not_updated", "intermediate_updated", "final"]:
         is_folder_existing(os.sep.join([download_folder, env, generate_bq_dataset_name(env, table_type)]))
 
     # Set the Postgres query 
@@ -206,19 +206,21 @@ def export_one_postgres_table(curs, env, table_name):
                 FROM `{generate_bq_table_id(env, "final", table_name)}`
                 """
             )["last_time_update"][0]
-            sql_query = f"""COPY (SELECT * FROM {table_name} WHERE updated_at > "{last_time_update}") TO STDOUT WITH CSV HEADER"""
-            table_type = "intermediate"
+            # don't use double quote in Postgres query
+            sql_query = f"COPY (SELECT * FROM {table_name} WHERE updated_at > '{last_time_update}') TO STDOUT WITH CSV HEADER"
+            table_type = "intermediate_updated"
 
             with io.open(
                 os.sep.join([
                     os.sep.join([download_folder, env]),
-                    generate_bq_dataset_name(env, "delete"),
-                    f"""{generate_bq_table_name("delete", table_name)}.csv"""
+                    generate_bq_dataset_name(env, "intermediate_not_updated"),
+                    f"""{generate_bq_table_name("intermediate_not_updated", table_name)}.csv"""
                 ]),
                 "w",
                 encoding="utf-8-sig"
             ) as output:
-                curs.copy_expert(f"""COPY (SELECT id FROM {table_name} WHERE updated_at <= "{last_time_update}") TO STDOUT WITH CSV HEADER""", output)
+                # don't use double quote in Postgres query
+                curs.copy_expert(f"COPY (SELECT id FROM {table_name} WHERE updated_at <= '{last_time_update}') TO STDOUT WITH CSV HEADER", output)
     
     except NotFound:
         pass
@@ -273,11 +275,6 @@ def export_all_postgres_tables(env):
 @timer_func
 def load_one_csv_file_to_bq(env, table_type, table_name):
     """Loads a local CSV file to a BigQuery table.
-
-    Args:
-        env (str): The chosen database on Postgres.
-        table_type (str): "intermediate" or "final"
-        table_name (str): Name of the Postgres table
     """
     # Check if the dataset for the env and table_type has existed yet,
     # if not, create one.
@@ -304,10 +301,6 @@ def load_one_csv_file_to_bq(env, table_type, table_name):
 def load_csv_files_from_one_table_type_to_bq(env, table_type):
     """Loads all CSV files of a table type ("intermediate" or "final")
     to the respective BigQuery dataset.
-
-    Args:
-        env (str): The chosen database on Postgres.
-        table_type (str): "delete", "intermediate" or "final"
     """
     # Check if the dataset for the env and table_type has existed yet,
     # if not, create one.
@@ -324,77 +317,58 @@ def load_csv_files_from_one_table_type_to_bq(env, table_type):
 def load_all_csv_files_to_bq(env):
     """Loads all CSV files from both "intermediate" and "final" table types
     of a chosen environment to the respective BigQuery datasets.
-
-    Args:
-        env (str): The chosen database on Postgres.
     """
-    for table_type in ["delete", "intermediate", "final"]:
+    for table_type in ["intermediate_not_updated", "intermediate_updated", "final"]:
         load_csv_files_from_one_table_type_to_bq(env, table_type)
 
 @timer_func
-def update_bq_final_table_from_delete_table(env, table_name):
+def update_bq_final_table_from_intermediate_not_updated_table(env, table_name):
+    """Deletes rows in the final table that don't appear in the delete table.
+    """
     try:
-        delete_table = client.get_table(generate_bq_table_id(env, "delete", table_name))
-
-        if delete_table.num_rows != 0:
-            job = client.query(
-                f"""
-                DELETE `{generate_bq_table_id(env, "final", table_name)}` final
-                WHERE final.id NOT IN (
-                    SELECT
-                        id
-                    FROM `{generate_bq_table_id(env, "delete", table_name)}`
-                )
-                """
+        job = client.query(
+            f"""
+            DELETE `{generate_bq_table_id(env, "final", table_name)}` final
+            WHERE final.id NOT IN (
+                SELECT
+                    id
+                FROM `{generate_bq_table_id(env, "intermediate_not_updated", table_name)}`
             )
-            job.result()
+            """
+        )
+        job.result()
 
     except NotFound:
-        print(f"""The table `{generate_bq_table_id(env, "delete", table_name)}` doesn't exist.""")
+        print(f"""The table `{generate_bq_table_id(env, "intermediate_not_updated", table_name)}` doesn't exist.""")
 
 # %%
 @timer_func
-def update_bq_final_table_from_intermediate_table(env, table_name):
+def update_bq_final_table_from_intermediate_updated_table(env, table_name):
     """Updates a BigQuery final table from its respective intermediate table.
 
     If the intermediate table doesn't have any row, take no action.
-    Otherwise, delete the intersected rows of the final table and the intermediate table,
-    then insert the whole intermediate table into the final table.
+    Otherwise, insert the whole intermediate table into the final table.
 
     Args:
-        env (str): The chosen database on Postgres.
+        env (str): The chosen database on Postgres. It can be either "musicdb_dev", "musicdb_prod", or "msk".
         table_name: Name of the Postgres table
     """
     try:
-        intermediate_table = client.get_table(generate_bq_table_id(env, "intermediate", table_name))
+        intermediate_table = client.get_table(generate_bq_table_id(env, "intermediate_updated", table_name))
 
         if intermediate_table.num_rows != 0:
-            # Delete rows from the final table which are present in the intermediate table
-            job = client.query(
-                f"""
-                DELETE `{generate_bq_table_id(env, "final", table_name)}` final
-                WHERE final.id IN (
-                    SELECT 
-                        id
-                    FROM `{generate_bq_table_id(env, "intermediate", table_name)}`
-                )
-                """
-            )
-            job.result()
-
-            # Insert all rows from the intermediate table to the final table
             job = client.query(
                 f"""
                 INSERT `{generate_bq_table_id(env, "final", table_name)}`
                 SELECT
                     *
-                FROM  `{generate_bq_table_id(env, "intermediate", table_name)}`
+                FROM  `{generate_bq_table_id(env, "intermediate_updated", table_name)}`
                 """
             )
             job.result()
     
     except NotFound:
-        print(f"""The table `{generate_bq_table_id(env, "intermediate", table_name)}` doesn't exist.""")
+        print(f"""The table `{generate_bq_table_id(env, "intermediate_updated", table_name)}` doesn't exist.""")
 
 
 # %%
@@ -403,13 +377,12 @@ def update_all_bq_final_tables(env):
     from their respective intermediate tables.
 
     Args:
-        env (str): The chosen database on Postgres.
+        env (str): The chosen database on Postgres. It can be either "musicdb_dev", "musicdb_prod", or "msk".
     """
-    for table in client.list_tables(generate_bq_dataset_id(env, "intermediate")):
-        table_name = table.table_id[(len("intermediate_")):]
-        update_bq_final_table_from_delete_table(env, table_name)
-        update_bq_final_table_from_intermediate_table(env, table_name)
-
+    for table in client.list_tables(generate_bq_dataset_id(env, "intermediate_updated")):
+        table_name = table.table_id[(len("intermediate_updated")+1):]
+        update_bq_final_table_from_intermediate_not_updated_table(env, table_name)
+        update_bq_final_table_from_intermediate_updated_table(env, table_name)
 
 # %%
 def mirror(env):
@@ -419,7 +392,8 @@ def mirror(env):
     The result is in the BigQuery dataset "final_{env}".
 
     Args:
-        env (str): The chosen database on Postgres.
+        env (str): The chosen database on Postgres. It can be either "musicdb_dev", "musicdb_prod", or "msk".
+    """
     export_all_postgres_tables(env)
     load_all_csv_files_to_bq(env)
     update_all_bq_final_tables(env)
@@ -431,7 +405,7 @@ def get_stale_tables(env):
     Args:
         env (str): It can be either "musicdb_dev", "musicdb_prod", or "msk".
     """
-    bq_dataset_id = f"{bq_project_id}.intermediate_{env}"
+    bq_dataset_id = f"{bq_project_id}.intermediate_updated_{env}"
     dataset = client.get_dataset(bq_dataset_id)
     table_list = list(client.list_tables(dataset))
     last_update_dict = dict()
@@ -444,17 +418,17 @@ def get_stale_tables(env):
             last_update_dict[table.table_id] = last_update.strftime("%Y-%m-%d")
     return last_update_dict
 
-def send_email_notification(receiver_email, subject, content):
+def send_email_notification(subject, content):
     """Sends an email notification with the specified subject and content
-    from "junk.hoaktran38@gmail.com" to "hoaktran38@gmail.com".
+    from the sender email to the receiver email.
 
     Args:
         subject (str): The email subject
         content (list): A list of string that makes the email content lines
     """
-    sender_email = "junk.hoaktran38@gmail.com"
-    app_password = "vpkacjynunumxmet" # app password for gmail
-    receiver_email = "hoaktran38@gmail.com"
+    sender_email = "the-sender-email-address@gmail.com"
+    app_password = "your-sender-email-app-password" # app password for gmail
+    receiver_email = "the-receiver-email-address@gmail.com"
 
     try:
         with yagmail.SMTP(sender_email, app_password) as yag:
