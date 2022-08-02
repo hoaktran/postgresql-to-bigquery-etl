@@ -97,17 +97,17 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
+1. Create a service account for BigQuery API following [this article](https://cloud.google.com/bigquery/docs/reference/libraries) and download it to local environment
 2. Clone the repo
    ```sh
    git clone https://github.com/hoaktran/postgresql-to-bigquery-etl.git
    ```
-3. Install NPM packages
+3. Install the necessary libraries from `requirements.txt`
    ```sh
-   npm install
+   pip install requirements.txt
    ```
-4. Enter your API in `config.js`
-   ```js
+4. Set an environment variable for BigQuery API in `etl.py`
+   ```py
    const API_KEY = 'ENTER YOUR API';
    ```
 
