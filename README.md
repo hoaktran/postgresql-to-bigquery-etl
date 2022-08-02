@@ -129,6 +129,7 @@ Finally, the code will check the update timestamp in each `intermediate_not_upda
 ## Usage
 
 For a specific environment, you can run the function `mirror(env)` to mirror that environment from Postgres to BigQuery.
+
 To get notification on stale data, run the function `stale_notify(env)`.
 
 
