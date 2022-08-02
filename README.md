@@ -1,28 +1,11 @@
 <div id="top"></div>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
 
-
-
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
 
 
 <!-- PROJECT LOGO -->
@@ -68,7 +51,6 @@
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
@@ -79,8 +61,11 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-PostgreSQL is one of the most popular tools to store and analyze data at scale. However, it requires a huge effort and expertise to run analytic queries within the desired time using PostgreSQL. This is a barrier for business users who do not have that skill. Hence, it is preferred to have a separate system on the cloud for analytical workloads, so we can have additional benefits like automatic and elastic scaling based on the complexity of queries.
+PostgreSQL is one of the most popular tools to store and analyze data at scale. However, it requires a huge effort and expertise to run analytic queries within the desired time using PostgreSQL. 
 
+This is a barrier for business users who do not have that skill. This is why it is preferred to have a separate system on the cloud for analytical workloads, so we can have additional benefits like automatic and elastic scaling based on the complexity of queries. 
+
+Hence, I choose to mirror data from PostgreSQL to Google BigQuery.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -88,14 +73,9 @@ PostgreSQL is one of the most popular tools to store and analyze data at scale. 
 
 ### Built With
 
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+* [![Google Cloud][Google Cloud.js]][Google Cloud-url]
+* [![PostgreSQL][PostgreSQL.js]][PostgreSQL-url]
+* [![Python][Python.js]][Python-url]
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -176,17 +156,6 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
 <!-- CONTACT -->
 ## Contact
 
@@ -224,6 +193,12 @@ Project Link: [https://github.com/hoaktran/postgresql-to-bigquery-etl](https://g
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/linkedin_username
 [product-screenshot]: images/screenshot.png
+[Python.js]: https://img.shields.io/badge/python-306998?style=for-the-badge&logo=python&logoColor=ffd438
+[Python-url]: https://python.org/
+[PostgreSQL.js]: https://img.shields.io/badge/PostgreSQL-0769AD?style=for-the-badge&logo=postgresql&logoColor=white
+[PostgreSQL-url]: https://www.postgresql.org/
+[Google Cloud.js]: https://img.shields.io/badge/google%20cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white
+[Google Cloud-url]: https://cloud.google.com/
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
