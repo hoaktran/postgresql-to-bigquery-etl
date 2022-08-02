@@ -69,7 +69,23 @@ Hence, I choose to mirror data from PostgreSQL to Google BigQuery.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+## Logic
+* Get all the tables within the specified database on PostgreSQL
+* For each PostgreSQL table
+  * If it hasn't existed on BigQuery, then save the whole table to a CSV file, and upload it to BigQuery under the name `final_{table_name}`
+  * If it has already existed on BigQuery
+    * If it does not have the column `updated_at`, then save the whole table to a CSV file, and upload it to BigQuery under the name `final_{table_name}`
+    * If it has the field on update timestamp, then get the lastest update timestamp of the respective table on BigQuery, and divide the table into two parts
+      * The first part is the rows that have not been updated since the previous sync
+        * Save this part to a CSV file and upload it to BigQuery under the name `intermediate_not_updated_{table_name}`
+        * Delete all rows on the respective BigQuery table if they do not appear in the table `intermediate_not_updated_{table_name}` (because these are the deleted or updated rows)
+      * The second part is the rows that have been updated or inserted since the previous sync
+        * Save this part to a CSV file and upload it to BigQuery under the name `intermediate_updated_{table_name}`
+        * Insert all rows from the table `intermediate_updated_{table_name}` to the respective BigQuery table
 
+Note that
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Built With
 
@@ -108,7 +124,8 @@ This is an example of how to list things you need to use the software and how to
    ```
 4. Set an environment variable for BigQuery API in `etl.py`
    ```py
-   const API_KEY = 'ENTER YOUR API';
+   working_folder = os.getcwd()
+   client = bigquery.Client.from_service_account_json(os.sep.join([working_folder, "bigqueryapi.json"]))
    ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -199,19 +216,3 @@ Project Link: [https://github.com/hoaktran/postgresql-to-bigquery-etl](https://g
 [PostgreSQL-url]: https://www.postgresql.org/
 [Google Cloud.js]: https://img.shields.io/badge/google%20cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white
 [Google Cloud-url]: https://cloud.google.com/
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
-[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
-[Laravel-url]: https://laravel.com
-[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
-[Bootstrap-url]: https://getbootstrap.com
-[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
