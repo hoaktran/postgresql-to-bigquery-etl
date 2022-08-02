@@ -41,10 +41,8 @@
       <a href="#about-the-project">About The Project</a>
       <ul>
         <li><a href="#built-with">Built With</a></li>
+        <li><a href="#logic">Logic</a></li>
       </ul>
-    </li>
-    <li>
-      <a href="#logic">Logic</a>
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
@@ -78,7 +76,7 @@ Hence, I choose to mirror data from PostgreSQL to Google BigQuery.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Logic
+### Logic
 * Get all the tables within the specified database on PostgreSQL
 * For each PostgreSQL table
   * If it hasn't existed on BigQuery, then save the whole table to a CSV file, and upload it to BigQuery under the name `final_{table_name}`
