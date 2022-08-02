@@ -83,7 +83,7 @@ Hence, I choose to mirror data from PostgreSQL to Google BigQuery.
         * Save this part to a CSV file and upload it to BigQuery under the name `intermediate_updated_{table_name}`
         * Insert all rows from the table `intermediate_updated_{table_name}` to the respective BigQuery table
 
-Note that
+I want to talk a bit about uploading a CSV file to a BigQuery table. Theoretically, BigQuery can automatically detect the schema from the file. However, it only scan up to the first 500 rows of the file to dertemine the data type. This can break the code if later on, the data does not have the same type. Another workaround way is to assign the schema for each CSV file specifically, which is a huge hassle. Therefore, I decide to, whenever upload a CSV file to a BigQuery table, convert all the fields to the string format.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -176,7 +176,7 @@ Don't forget to give the project a star! Thanks again!
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+Hoa Tran - [@twitter_handle](https://twitter.com/twitter_handle) - hoaktran38@gmail.com
 
 Project Link: [https://github.com/hoaktran/postgresql-to-bigquery-etl](https://github.com/hoaktran/postgresql-to-bigquery-etl)
 
@@ -187,9 +187,8 @@ Project Link: [https://github.com/hoaktran/postgresql-to-bigquery-etl](https://g
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* []()
-* []()
-* []()
+* [psycopg2 library](https://pypi.org/project/psycopg2/)
+* [Hevo data blog on PostgreSQL to BigQuery ETL](https://hevodata.com/blog/postgresql-to-bigquery-data-migration/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -205,11 +204,8 @@ Project Link: [https://github.com/hoaktran/postgresql-to-bigquery-etl](https://g
 [stars-url]: https://github.com/hoaktran/postgresql-to-bigquery-etl/stargazers
 [issues-shield]: https://img.shields.io/github/issues/hoaktran/postgresql-to-bigquery-etl.svg?style=for-the-badge
 [issues-url]: https://github.com/hoaktran/postgresql-to-bigquery-etl/issues
-[license-shield]: https://img.shields.io/github/license/hoaktran/postgresql-to-bigquery-etl.svg?style=for-the-badge
-[license-url]: https://github.com/hoaktran/postgresql-to-bigquery-etl/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/linkedin_username
-[product-screenshot]: images/screenshot.png
+[linkedin-url]: https://linkedin.com/in/hoa-tran-730b40133
 [Python.js]: https://img.shields.io/badge/python-306998?style=for-the-badge&logo=python&logoColor=ffd438
 [Python-url]: https://python.org/
 [PostgreSQL.js]: https://img.shields.io/badge/PostgreSQL-0769AD?style=for-the-badge&logo=postgresql&logoColor=white
