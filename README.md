@@ -168,7 +168,7 @@ Don't forget to give the project a star! Thanks again!
 <!-- CONTACT -->
 ## Contact
 
-Hoa Tran - [@twitter_handle](https://twitter.com/twitter_handle) - hoaktran38@gmail.com
+Hoa Tran - hoaktran38@gmail.com
 
 Project Link: [https://github.com/hoaktran/postgresql-to-bigquery-etl](https://github.com/hoaktran/postgresql-to-bigquery-etl)
 
