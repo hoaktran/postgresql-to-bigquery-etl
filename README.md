@@ -81,8 +81,8 @@ Hence, I created this code to mirror data from PostgreSQL to Google BigQuery.
 * For each PostgreSQL table
   * If it has not existed on BigQuery, then save the whole table to a CSV file, and upload it to BigQuery under the name `final_{table_name}`
   * If it has already existed on BigQuery
-    * If it does not have the field on update timestamp, then save the whole table to a CSV file, and upload it to BigQuery under the name `final_{table_name}`
-    * If it has the field on update timestamp, then get the lastest update timestamp of the respective table on BigQuery, and divide the table into two parts
+    * If it does not have the field on update timestamp or the table schema has changed, then save the whole table to a CSV file, and upload it to BigQuery under the name `final_{table_name}`
+    * If it has the field on update timestamp and the table schema has not changed, then get the lastest update timestamp of the respective table on BigQuery, and divide the table into two parts
       * The first part is the rows that have not been updated since the previous sync
         * Save this part to a CSV file and upload it to BigQuery under the name `intermediate_not_updated_{table_name}`
         * Delete all rows on the respective BigQuery table if they do not appear in the table `intermediate_not_updated_{table_name}` (because these are the deleted or updated rows)
