@@ -118,7 +118,7 @@ Finally, the code will check the update timestamp in each `intermediate_not_upda
   def send_email_notification(subject, content):
     sender_email = "the-sender-email@gmail.com"
     app_password = "app-password" 
-    receiver_email = "the-receiver-email@amanotes.com"
+    receiver_email = "the-receiver-email@gmail.com"
   ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
